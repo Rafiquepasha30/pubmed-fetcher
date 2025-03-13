@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import re
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Tuple
 
 PUBMED_SEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 PUBMED_SUMMARY_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
@@ -12,12 +12,12 @@ def fetch_pubmed_ids(query: str) -> List[str]:
         "db": "pubmed",
         "term": query,
         "retmode": "json",
-        "retmax": 10 
+        "retmax": 10  # Fetch up to 10 results
     }
     response = requests.get(PUBMED_SEARCH_URL, params=params)
     response.raise_for_status()
     data = response.json()
-    
+
     return data.get("esearchresult", {}).get("idlist", [])
 
 def fetch_paper_details(pubmed_ids: List[str]) -> List[Dict[str, str]]:
@@ -39,7 +39,7 @@ def fetch_paper_details(pubmed_ids: List[str]) -> List[Dict[str, str]]:
         details = data["result"].get(pubmed_id, {})
         title = details.get("title", "Unknown")
         pub_date = details.get("pubdate", "Unknown")
-        authors = details.get("authors", [])
+        authors = details.get("authors", []) or []  # Ensures authors is always a list
 
         non_academic_authors, company_affiliations = extract_non_academic_authors(authors)
 

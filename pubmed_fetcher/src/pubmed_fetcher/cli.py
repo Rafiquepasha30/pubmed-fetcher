@@ -12,18 +12,29 @@ def main():
     if args.debug:
         print(f"Fetching papers for query: {args.query}")
 
-    pubmed_ids = fetch_pubmed_ids(args.query)
-    if not pubmed_ids:
-        print("No papers found.")
-        return
+    try:
+        pubmed_ids = fetch_pubmed_ids(args.query)
+        if not pubmed_ids:
+            print("No papers found.")
+            return
 
-    papers = fetch_paper_details(pubmed_ids)
-    
-    if args.file:
-        save_to_csv(papers, args.file)
-    else:
-        for paper in papers:
-            print(paper)
+        if args.debug:
+            print(f"Fetched {len(pubmed_ids)} PubMed IDs: {pubmed_ids}")
+
+        papers = fetch_paper_details(pubmed_ids)
+        if not papers:
+            print("No papers found after processing.")
+            return
+
+        if args.file:
+            save_to_csv(papers, args.file)
+            print(f"Results saved to {args.file}")
+        else:
+            for paper in papers:
+                print(paper)
+
+    except Exception as e:
+        print(f"Error fetching papers: {e}")
 
 if __name__ == "__main__":
     main()
